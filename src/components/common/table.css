@@ -1,0 +1,25 @@
+.editable-cell {
+    position: relative;
+}
+
+.editable-cell-value-wrap {
+    padding: 5px 12px;
+    cursor: pointer;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 4px 11px;
+}
+
+[data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
+    border: 1px solid #434343;
+}
+.cell-ru {
+    padding: 0px;
+    margin-left: 40px;
+}
+.deleted-td {
+    background-color: #d9363e1c;
+}

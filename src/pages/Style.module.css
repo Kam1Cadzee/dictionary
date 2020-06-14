@@ -1,0 +1,15 @@
+.authFull {
+    height: 100vh;
+}
+
+.blockAuth {
+    height: 25rem;
+}
+
+.profile {
+    background-color: #334454;
+    color: white;
+    padding: 0.4rem;
+    margin: 0.8rem 0.5rem;
+}
+
