@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import { notification } from 'antd';
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
+import {BrowserRouter, Route, Switch, HashRouter} from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import LayoutPage from './pages/LayoutPage';
 import {ApolloProvider, useMutation, useQuery,} from '@apollo/react-hooks';
@@ -70,6 +70,7 @@ cache.writeData({
   data: {
     isAuth: false,
     currentUser: null,
+    step: 0
   },
 });
 function App() {
@@ -101,9 +102,9 @@ function App() {
 
   return (
     <ApolloProvider client={client as any}>
-      <BrowserRouter>
-      <Content/>
-      </BrowserRouter>
+      <HashRouter basename="/dictionary">
+        <Content/>
+      </HashRouter>
     </ApolloProvider>
   );
 }

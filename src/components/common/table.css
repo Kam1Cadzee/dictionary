@@ -17,9 +17,20 @@
     border: 1px solid #434343;
 }
 .cell-ru {
-    padding: 0px;
-    margin-left: 40px;
+    padding: 0.2rem 0.5rem !important;
+    max-width: 80%;
+    margin: auto !important;
+    display: flex !important;
 }
 .deleted-td {
     background-color: #d9363e1c;
+}
+
+[data-theme='compact'] .site-collapse-custom-collapse .site-collapse-custom-panel,
+.site-collapse-custom-collapse .site-collapse-custom-panel {
+    background: #fff;
+    border-radius: 2px;
+    margin-bottom: 0px;
+    border: 0px;
+    overflow: hidden;
 }

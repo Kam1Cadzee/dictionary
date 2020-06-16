@@ -67,7 +67,9 @@ export const EditableCell = ({
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save}/>
+        <Input ref={inputRef} onPressEnter={save} onBlur={save}  className={generateClassName('editable-cell-value-wrap', {
+          'cell-ru': dataIndex === 'ru'
+        })}/>
       </Form.Item>
     ) : (
       <div

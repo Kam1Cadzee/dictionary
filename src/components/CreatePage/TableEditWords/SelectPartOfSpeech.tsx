@@ -18,7 +18,6 @@ const SelectPartOfSpeech = (props: SelectProps<PartOfSpeech>) => {
   return (
     <Select
       tagRender={tagRender}
-      style={{ width: '100%' }}
       bordered={false}
       suffixIcon={null}
       {...props}

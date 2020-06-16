@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { ITranslate } from '../../../typings/IEntity';
 import { useMutation } from '@apollo/react-hooks';
 import { MUTATION } from '../../../graphql/mutation';
+import css from '../TableEditWords.module.css';
 
 const { Search } = Input;
 
@@ -64,6 +65,7 @@ const CreateTranslateOfWord = ({ idWord, onAdd }: IAddTranslateProps) => {
       <Button
         size="middle"
         shape="circle"
+        className={css.btnCreate}
         onClick={() => setIsShow(true)}
         icon={<PlusOutlined />}
       />

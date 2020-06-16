@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {Button, Form, Input, Popover, Row, Select, Switch} from 'antd';
-import {CheckOutlined, CloseOutlined, RightOutlined, PlusOutlined, LeftOutlined} from '@ant-design/icons';
+import {Button, Form, Input, Popover, Row, Select, Switch, Radio} from 'antd';
+import { UndoOutlined, PlusOutlined, RedoOutlined} from '@ant-design/icons';
 import SelectPartOfSpeech from './SelectPartOfSpeech';
 import {PartOfSpeech} from '../../../typings/PartOfSpeech';
 import {useMutation} from '@apollo/react-hooks';
@@ -8,15 +8,13 @@ import {MUTATION} from '../../../graphql/mutation';
 
 const {Search} = Input;
 const {Option} = Select;
-const {Group} = Button;
 
 interface ITitleTableProps {
   onAdd: any;
   onUpdate: any;
   loadingUpdate: boolean;
   disabled: boolean;
-  isShowDeleted: boolean,
-  checkedDeleted: (value: boolean) => any;
+  onChangeShowDeleted: (value: number) => any;
   onPrev: any;
   onNext: any;
   disabledPrev: boolean;
@@ -65,16 +63,16 @@ const ContentTitleTable = ({onClose, onAdd, entity}: IContentTitleTableProps) =>
   };
 
   return (
-    <Form name="basic" onFinish={onFinish} form={form}>
+    <Form name="basic" onFinish={onFinish} form={form} size={'middle'}>
       <Form.Item
         name="en"
-        rules={[{required: true, message: 'Please input your username!'}]}
+        rules={[{required: true, message: 'Please input your word!'}]}
       >
         <Search onSearch={handleSearch} placeholder="Word" enterButton/>
       </Form.Item>
       <Form.Item
         name="translate"
-        rules={[{required: true, message: 'Please input your username!'}]}
+        rules={[{required: true, message: 'Please input translate!'}]}
       >
         <Select mode="tags" tokenSeparators={[',']}>
           {options.map((o) => {
@@ -82,24 +80,24 @@ const ContentTitleTable = ({onClose, onAdd, entity}: IContentTitleTableProps) =>
           })}
         </Select>
       </Form.Item>
-      <Input.Group compact size="small">
+      <Row>
         <Form.Item
           name="type"
-          rules={[{required: true, message: 'Please input your username!'}]}
+          rules={[{required: true, message: 'Please select part of speech!'}]}
           initialValue={PartOfSpeech.OTHER}
         >
           <SelectPartOfSpeech onChange={handleChange}/>
         </Form.Item>
         <Form.Item>
           <Button
-            size="large"
+            size="middle"
             type="primary"
             htmlType="submit"
             shape="circle"
             icon={<PlusOutlined/>}
           />
         </Form.Item>
-      </Input.Group>
+      </Row>
     </Form>
   );
 };
@@ -109,8 +107,7 @@ const TitleTableWords = ({
                            onUpdate,
                            loadingUpdate,
                            disabled,
-                           isShowDeleted,
-                           checkedDeleted,
+                           onChangeShowDeleted,
                            onPrev,
                            onNext,
                            disabledNext,
@@ -132,27 +129,22 @@ const TitleTableWords = ({
       <div>
         <Button
           size="small"
-          shape="circle"
-          type="primary"
+          type="link"
           onClick={onPrev}
           disabled={disabledPrev}
-          icon={<LeftOutlined />}
+          icon={<UndoOutlined />}
         />
         <Button
           size="small"
-          shape="circle"
-          type="primary"
+          type="link"
           onClick={onNext}
           disabled={disabledNext}
-          icon={<RightOutlined />}
+          icon={<RedoOutlined />}
         />
-        <Switch
-          checkedChildren={<CheckOutlined/>}
-          unCheckedChildren={<CloseOutlined/>}
-          checked={isShowDeleted}
-          onChange={checked => checkedDeleted(checked)}
-        />
-        Show deleted
+        <Radio.Group onChange={e => onChangeShowDeleted(e.target.value)} defaultValue={0}  buttonStyle="solid" size="small">
+          <Radio.Button value={1}>Show</Radio.Button>
+          <Radio.Button value={0}>Hide</Radio.Button>
+        </Radio.Group>
       </div>
       <Button.Group>
         <Button

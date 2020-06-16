@@ -36,12 +36,12 @@ const LayoutPage = (props: RouteComponentProps<any>) => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+    <Layout style={{ minHeight: '100vh' }} >
+      <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme={'light'}>
         <div className={css.profile}>
           {user && user.name}
         </div>
-        <Menu theme="dark" defaultSelectedKeys={[itemKey]} mode="inline">
+        <Menu theme="light" defaultSelectedKeys={[itemKey]} mode="inline">
           <Menu.Item key="create" icon={<PlusCircleOutlined />} onClick={() => props.history.push('/main/create')}>
             Create
           </Menu.Item>

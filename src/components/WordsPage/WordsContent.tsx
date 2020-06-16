@@ -27,7 +27,7 @@ const WordsContent = ({ words, disconnectWords }: IWordsContentProps) => {
       showHeader={false}
     >
       <Column title="EN" dataIndex="en" key="en" width="35%" />
-      <Column title="RU" dataIndex="ru" key="ru" width="35%" />
+      <Column title="RU" dataIndex="ru" key="ru" width="35%" className={"cell-ru"}  />
       <Column
         width="30%"
         title="Part of speech"

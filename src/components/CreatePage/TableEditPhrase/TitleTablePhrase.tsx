@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Form, Popover, Row } from 'antd';
+import {Button, Form, Popover, Radio, Row} from 'antd';
 import { Input } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { UndoOutlined, PlusOutlined, RedoOutlined} from '@ant-design/icons';
 import {useMutation} from '@apollo/react-hooks';
 import {MUTATION} from '../../../graphql/mutation';
 import {IPhrase} from '../../../typings/IEntity';
@@ -13,6 +13,11 @@ interface ITitleTableProps {
   onUpdate: any;
   loadingUpdate: boolean;
   disabled: boolean;
+  onChangeShowDeleted: (value: number) => any;
+  onPrev: any;
+  onNext: any;
+  disabledPrev: boolean;
+  disabledNext: boolean;
   entity: string;
   isCreate: boolean;
 }
@@ -75,7 +80,12 @@ const TitleTablePhrase = ({
   onAdd,
   loadingUpdate,
   entity,
-  isCreate
+  isCreate,
+  disabledNext,
+  onNext,
+  disabledPrev,
+  onPrev,
+  onChangeShowDeleted
 }: ITitleTableProps) => {
   const [isShow, setIsShow] = useState(false);
 
@@ -88,7 +98,27 @@ const TitleTablePhrase = ({
   };
 
   return (
-    <Row justify="end">
+    <Row justify="space-between">
+      <div>
+        <Button
+          size="small"
+          type="link"
+          onClick={onPrev}
+          disabled={disabledPrev}
+          icon={<UndoOutlined />}
+        />
+        <Button
+          size="small"
+          type="link"
+          onClick={onNext}
+          disabled={disabledNext}
+          icon={<RedoOutlined />}
+        />
+        <Radio.Group onChange={e => onChangeShowDeleted(e.target.value)} defaultValue={0}  buttonStyle="solid" size="small">
+          <Radio.Button value={1}>Show</Radio.Button>
+          <Radio.Button value={0}>Hide</Radio.Button>
+        </Radio.Group>
+      </div>
       <Button.Group>
         <Button
           onClick={onUpdate}

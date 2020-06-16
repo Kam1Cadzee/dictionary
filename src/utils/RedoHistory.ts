@@ -30,11 +30,11 @@ export class RedoHistory {
     });
 
     return findItem[action];
-  }
+  };
 
-  public addAction = (action: IActionData) => {
+  public addAction = <T>(action: IActionData<T>) => {
     this.history = this.current;
-    const newAction: IAction = {
+    const newAction: IAction<T> = {
       nextAction: null,
       prevAction: this.history,
       ...action
@@ -72,14 +72,14 @@ export class RedoHistory {
 }
 
 
-interface IAction extends IActionData {
+interface IAction<T = any> extends IActionData<T> {
   //revertAction: string;
   //
-  nextAction: IAction | null;
-  prevAction: IAction | null;
+  nextAction: IAction<T> | null;
+  prevAction: IAction<T> | null;
 }
 
-interface IActionData {
+interface IActionData<T = any> {
   action: string;
-  payload: any;
+  payload: T;
 }

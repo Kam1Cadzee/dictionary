@@ -29,6 +29,11 @@ const QUERIES = {
           }
       }
   `,
+  GET_STEP_CLIENT: gql`
+      {
+          step @client
+      }
+  `,
   REFRESH_USER: gql`
       mutation {
           refreshUser {
@@ -117,6 +122,11 @@ const QUERIES = {
                   }
               }
           }
+      }
+  `,
+  GET_COUNT_ENTITIES: gql`
+      query getCountEntities {
+          getCountEntities
       }
   `
 };

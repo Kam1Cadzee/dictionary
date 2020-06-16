@@ -1,12 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Button, Col, Popconfirm, Row, Table, Tooltip } from 'antd';
 import { EditableCell, EditableRow } from '../../common/EditableTableComponent';
 import { IDeleteSmth, IPhrase } from '../../../typings/IEntity';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined,RedoOutlined } from '@ant-design/icons';
 import TitleTablePhrase from './TitleTablePhrase';
-import {useMutation} from '@apollo/react-hooks';
+import {useApolloClient, useMutation} from '@apollo/react-hooks';
 import {MUTATION} from '../../../graphql/mutation';
 import {isEmptyObject} from '../../../utils/isEmptyObject';
+import {RedoHistory} from '../../../utils/RedoHistory';
 
 const { Column } = Table;
 
@@ -17,7 +18,10 @@ interface ITableEditPhraseProps {
   title: string;
   isCreate: boolean;
 }
-
+interface IChangePhrase {
+  oldValue: IPhrase;
+  newValue: IPhrase;
+}
 interface ICache {
   [id: string]: IPhrase;
 }
@@ -28,7 +32,11 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
   const [phrases, setPhrases] = useState(props.phrases);
   const [deletePhrases, setDeletePhrases] = useState(props.disconnectPhrases);
   const [isCreate, setIsCreate] = useState(props.isCreate);
+  const [isUpdate, setIsUpdate] = useState(props.isCreate);
+  const client = useApolloClient();
+  const [isShowDeleted, setShowDeleted] = useState(0);
   const cache = useRef({} as ICache);
+  const history = useRef(new RedoHistory());
 
   const components = {
     body: {
@@ -37,18 +45,77 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     },
   };
 
+  useEffect(() => {
+    history.current.addHandler({
+      deletePhrase: (id: number) => {
+        setDeletePhrases((dis) => {
+          return [...dis, {id}];
+        });
+      },
+      recoverPhrase: (id: number) => {
+        setDeletePhrases((dis) => {
+          return dis.filter(d => d.id !== id);
+        });
+      }
+    });
+    history.current.addHandler({
+      actionForHandleSaveNext: (obj: IChangePhrase) => {
+        actionForHandleSaveNext(obj);
+      },
+      actionForHandleSavePrev: (obj: IChangePhrase) => {
+        actionForHandleSavePrev(obj);
+      }
+    })
+  }, []);
+
   const handleSave = async (row: IPhrase) => {
-    cache.current[row.id] = row;
     const index = phrases.findIndex(p => p.id === row.id);
+    if(phrases[index].phrase === row.phrase && phrases[index].ru === row.ru) return ;
+    client.writeData({
+      data: {
+        step: 2
+      }
+    });
+    cache.current[row.id] = row;
+    history.current.addAction<IChangePhrase>({
+      payload: {
+        oldValue: {...phrases[index]},
+        newValue: {...row}
+      },
+      action: 'actionForHandleSaveNext'
+    });
     phrases[index] = row;
     setPhrases(p => {
       return [...p];
     })
   };
+
+  const actionForHandleSaveNext = (obj: IChangePhrase) => {
+    basicActionForHandleSave(obj.newValue);
+  };
+  const actionForHandleSavePrev = (obj: IChangePhrase) => {
+    basicActionForHandleSave(obj.oldValue);
+  };
+
+  const basicActionForHandleSave = async (row: IPhrase) => {
+    setPhrases(phrases => {
+      cache.current[row.id] = row;
+      const index = phrases.findIndex(p => p.id === row.id);
+      phrases[index] = row;
+      return [...phrases];
+    })
+
+  };
   const handleDelete = (row: IPhrase) => {
     setDeletePhrases(p => {
       return [...p, {id: row.id}];
-    })
+    });
+    history.current.addAction({
+      action: 'deletePhrase',
+      payload: row.id
+    });
+
+    setIsCreate(false);
   };
 
   const handleUpdate = () => {
@@ -67,10 +134,21 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     }).then(() => {
       cache.current = {};
       setIsCreate(true);
+      setIsUpdate(true);
+      client.writeData({
+        data: {
+          step: 3
+        }
+      });
     })
   };
 
   const handleAdd = async (value: IPhrase) => {
+    client.writeData({
+      data: {
+        step: 2
+      }
+    });
     const res =  await mutationAddPhrase({
       variables: {
         phrase: value.phrase,
@@ -84,7 +162,21 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     });
   };
 
-  const filterPhrases = phrases.filter(p => !deletePhrases.some(d => d.id === p.id));
+  const filterPhrases = !isShowDeleted ?
+    phrases.filter(p => !deletePhrases.some(d => d.id === p.id)) : phrases;
+
+  function handleReturn(id: number) {
+    setDeletePhrases(phrases => {
+      return phrases.filter(p => p.id !== id);
+    });
+
+    history.current.addAction({
+      action: 'recoverPhrase',
+      payload: id
+    });
+    setIsCreate(false);
+  }
+
   return (
     <Table
       bordered={false}
@@ -101,7 +193,12 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
           loadingUpdate={loading}
           disabled={isCreate ? isEmptyObject(cache.current) : false}
           entity={props.title}
-          isCreate={isCreate}
+          isCreate={isUpdate}
+          onNext={history.current.next}
+          onPrev={history.current.prev}
+          disabledPrev={!history.current.isPrev()}
+          disabledNext={!history.current.isNext()}
+          onChangeShowDeleted={setShowDeleted}
         />
       )}
     >
@@ -134,19 +231,25 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
       <Column
         title="Operation"
         dataIndex="operation"
-        render={(text: any, record: any) => {
-          return (
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => handleDelete({ ...record })}
-            >
+        render={(text: any, record: IPhrase) => {
+          if(deletePhrases.some(d => d.id === record.id)) {
+            return (
               <Button
-                danger
                 size="small"
-                shape="circle"
-                icon={<DeleteOutlined />}
+                shape="circle-outline"
+                icon={<RedoOutlined/>}
+                onClick={() => handleReturn(record.id)}
               />
-            </Popconfirm>
+            )
+          }
+          return (
+            <Button
+              danger
+              size="small"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete({ ...record })}
+            />
           );
         }}
       />
