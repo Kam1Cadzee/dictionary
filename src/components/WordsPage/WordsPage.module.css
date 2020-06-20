@@ -1,0 +1,9 @@
+.entityCard {
+    width: 50% !important;
+    padding: 0 !important;
+}
+@media screen and (max-width: 1005px) {
+    .entityCard {
+        width: 100%!important;
+    }
+}

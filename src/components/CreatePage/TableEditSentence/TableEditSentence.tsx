@@ -1,38 +1,41 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { Button, Col, Popconfirm, Row, Table, Tooltip } from 'antd';
-import { EditableCell, EditableRow } from '../../common/EditableTableComponent';
-import { IDeleteSmth, IPhrase } from '../../../typings/IEntity';
+import {Button, Table} from 'antd';
 import { DeleteOutlined,RedoOutlined } from '@ant-design/icons';
+import {IDeleteSmth, IPhrase, ISentence} from '../../../typings/IEntity';
 import {useApolloClient, useMutation} from '@apollo/react-hooks';
 import {MUTATION} from '../../../graphql/mutation';
-import {isEmptyObject} from '../../../utils/isEmptyObject';
 import {RedoHistory} from '../../../utils/RedoHistory';
+import {EditableCell, EditableRow} from '../../common/EditableTableComponent';
 import BasicTitleTable from '../../common/BasicTItleTable';
-import ContentPopoverPhrase from './ContentPopoverPhrase';
+import {isEmptyObject} from '../../../utils/isEmptyObject';
+import ContentPopoverPhrase from '../TableEditPhrase/ContentPopoverPhrase';
+import ContentPopoverSentence from './ContentPopoverSentence';
 
 const { Column } = Table;
 
 interface ITableEditPhraseProps {
-  phrases: IPhrase[];
-  disconnectPhrases: IDeleteSmth[];
+  sentences: ISentence[];
+  disconnectSentences: IDeleteSmth[];
   entityId: number;
   title: string;
   isCreate: boolean;
 }
+
 interface IChangePhrase {
-  oldValue: IPhrase;
-  newValue: IPhrase;
-}
-interface ICache {
-  [id: string]: IPhrase;
+  oldValue: ISentence;
+  newValue: ISentence;
 }
 
-const TableEditPhrase = (props: ITableEditPhraseProps) => {
-  const [mutationTranslate] = useMutation(MUTATION.translatePhrase);
-  const [mutationAddPhrase] = useMutation(MUTATION.upsertPhrase);
-  const [mutationUpdate, {loading}] = useMutation(MUTATION.updatePhraseByEntity);
-  const [phrases, setPhrases] = useState(props.phrases);
-  const [deletePhrases, setDeletePhrases] = useState(props.disconnectPhrases);
+interface ICache {
+  [id: string]: ISentence;
+}
+
+const TableEditSentence = (props: ITableEditPhraseProps) => {
+  const [mutationTranslate] = useMutation(MUTATION.translateSentence);
+  const [mutationAddSentence] = useMutation(MUTATION.upsertSentence);
+  const [mutationUpdate, {loading}] = useMutation(MUTATION.updateSentencesByEntity);
+  const [sentences, setSentences] = useState(props.sentences);
+  const [deleteSentences, setDeleteSentences] = useState(props.disconnectSentences);
   const [isCreate, setIsCreate] = useState(props.isCreate);
   const [isUpdate, setIsUpdate] = useState(props.isCreate);
   const client = useApolloClient();
@@ -47,15 +50,16 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     },
   };
 
+
   useEffect(() => {
     history.current.addHandler({
-      deletePhrase: (id: number) => {
-        setDeletePhrases((dis) => {
+      deleteSentence: (id: number) => {
+        setDeleteSentences((dis) => {
           return [...dis, {id}];
         });
       },
-      recoverPhrase: (id: number) => {
-        setDeletePhrases((dis) => {
+      recoverSentence: (id: number) => {
+        setDeleteSentences((dis) => {
           return dis.filter(d => d.id !== id);
         });
       }
@@ -67,12 +71,13 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
       actionForHandleSavePrev: (obj: IChangePhrase) => {
         actionForHandleSavePrev(obj);
       }
-    })
+    });
+
   }, []);
 
-  const handleSave = async (row: IPhrase) => {
-    const index = phrases.findIndex(p => p.id === row.id);
-    if(phrases[index].phrase === row.phrase && phrases[index].ru === row.ru) return ;
+  const handleSave = async (row: ISentence) => {
+    const index = sentences.findIndex(p => p.id === row.id);
+    if(sentences[index].sentence === row.sentence && sentences[index].ru === row.ru) return ;
     client.writeData({
       data: {
         step: 2
@@ -81,17 +86,18 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     cache.current[row.id] = row;
     history.current.addAction<IChangePhrase>({
       payload: {
-        oldValue: {...phrases[index]},
+        oldValue: {...sentences[index]},
         newValue: {...row}
       },
       action: 'actionForHandleSaveNext'
     });
     row.isNeededTranslate = !row.isNeededTranslate;
-    phrases[index] = row;
-    setPhrases(p => {
+    sentences[index] = row;
+    setSentences(p => {
       return [...p];
     })
   };
+
 
   const actionForHandleSaveNext = (obj: IChangePhrase) => {
     basicActionForHandleSave(obj.newValue);
@@ -100,21 +106,22 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     basicActionForHandleSave(obj.oldValue);
   };
 
-  const basicActionForHandleSave = async (row: IPhrase) => {
-    setPhrases(phrases => {
+  const basicActionForHandleSave = async (row: ISentence) => {
+    setSentences(sentences => {
       cache.current[row.id] = row;
-      const index = phrases.findIndex(p => p.id === row.id);
-      phrases[index] = row;
-      return [...phrases];
+      const index = sentences.findIndex(p => p.id === row.id);
+      sentences[index] = row;
+      return [...sentences];
     })
 
   };
+
   const handleDelete = (row: IPhrase) => {
-    setDeletePhrases(p => {
+    setDeleteSentences(p => {
       return [...p, {id: row.id}];
     });
     history.current.addAction({
-      action: 'deletePhrase',
+      action: 'deleteSentence',
       payload: row.id
     });
 
@@ -126,11 +133,11 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
       variables: {
         data: {
           entityId: props.entityId,
-          disconnectPhrases: deletePhrases.map(d => d.id),
-          phrases: Object.values(cache.current).map(p => ({
+          disconnectSentences: deleteSentences.map(d => d.id),
+          sentences: Object.values(cache.current).map(p => ({
             id: p.id,
             ru: p.ru,
-            phrase: p.phrase
+            sentence: p.sentence
           }))
         }
       }
@@ -146,67 +153,66 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
     })
   };
 
-  const handleAdd = async (value: IPhrase) => {
+  const handleAdd = async (value: ISentence) => {
     client.writeData({
       data: {
         step: 2
       }
     });
-    const res =  await mutationAddPhrase({
+    const res =  await mutationAddSentence({
       variables: {
-        phrase: value.phrase,
+        sentence: value.sentence,
         ru: value.ru,
         entityId: props.entityId,
       }
     });
-    const phrase: IPhrase = res.data.upsertPhrase;
-    setPhrases(p => {
-      return [...p, phrase]
+    const sentences: ISentence = res.data.upsertSentence;
+    setSentences(p => {
+      return [...p, sentences]
     });
   };
 
-  const handleTranslate = async (value: IPhrase) => {
+  const handleTranslate = async (value: ISentence) => {
     const res = await mutationTranslate({
       variables: {
-        phrase: value.phrase,
+        sentence: value.sentence,
         entity: props.title
       }
     });
     if(res.data === null) {
-      const index = phrases.findIndex(p => p.id === value.id);
+      const index = sentences.findIndex(p => p.id === value.id);
       value.isNeededTranslate = false;
-      phrases[index] = value;
-      setPhrases(p => {
+      sentences[index] = value;
+      setSentences(p => {
         return [...p];
       });
       return;
     }
-    const phrase: IPhrase = res.data.translatePhrase;
-    value.ru = phrase.ru;
+    const sentence: ISentence = res.data.translateSentence;
+    value.ru = sentence.ru;
     await handleSave(value);
   };
 
-  const filterPhrases = !isShowDeleted ?
-    phrases.filter(p => !deletePhrases.some(d => d.id === p.id)) : phrases;
+  const filterSentences = !isShowDeleted ?
+    sentences.filter(p => !deleteSentences.some(d => d.id === p.id)) : sentences;
 
   function handleReturn(id: number) {
-    setDeletePhrases(phrases => {
-      return phrases.filter(p => p.id !== id);
+    setDeleteSentences(sentences => {
+      return sentences.filter(p => p.id !== id);
     });
 
     history.current.addAction({
-      action: 'recoverPhrase',
+      action: 'recoverSentence',
       payload: id
     });
     setIsCreate(false);
   }
-
   return (
     <Table
       bordered={false}
       showHeader={false}
       components={components}
-      dataSource={filterPhrases}
+      dataSource={filterSentences}
       pagination={false}
       size={'small'}
       rowClassName={() => 'editable-row'}
@@ -223,24 +229,24 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
           disabledPrev={!history.current.isPrev()}
           disabledNext={!history.current.isNext()}
           onChangeShowDeleted={setShowDeleted}
-          addComponent={ContentPopoverPhrase}
-          btnTitle="Add phrase"
+          addComponent={ContentPopoverSentence}
+          btnTitle="Add sentence"
         />
       )}
     >
       <Column
-        title="Phrase"
-        dataIndex="phrase"
-        key="phrase"
+        title="Sentence"
+        dataIndex="sentence"
+        key="sentence"
         width="40%"
         onCell={(record) => ({
           record,
           editable: true,
           extra: true,
-          dataIndex: 'phrase',
-          title: 'Phrase',
+          dataIndex: 'sentence',
+          title: 'Sentence',
           handleSave: handleSave,
-          handleTranslate,
+          handleTranslate
         })}
       />
       <Column
@@ -260,7 +266,7 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
         title="Operation"
         dataIndex="operation"
         render={(text: any, record: IPhrase) => {
-          if(deletePhrases.some(d => d.id === record.id)) {
+          if(deleteSentences.some(d => d.id === record.id)) {
             return (
               <Button
                 size="small"
@@ -285,4 +291,4 @@ const TableEditPhrase = (props: ITableEditPhraseProps) => {
   );
 };
 
-export default TableEditPhrase;
+export default TableEditSentence;

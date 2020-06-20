@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {Form, Input} from 'antd';
+import {Button, Form, Input, Tooltip} from 'antd';
 import {generateClassName} from '../../utils/generateClassName';
+import {ZhihuOutlined} from '@ant-design/icons';
 import './table.css';
 
 
@@ -17,14 +18,16 @@ export const EditableRow = ({index, ...props}: any) => {
   );
 };
 export const EditableCell = ({
-                        title,
-                        editable,
-                        children,
-                        dataIndex,
-                        record,
-                        handleSave,
-                        ...restProps
-                      }: any) => {
+                               title,
+                               editable,
+                               extra,
+                               children,
+                               dataIndex,
+                               record,
+                               handleSave,
+                               handleTranslate,
+                               ...restProps
+                             }: any) => {
   const [editing, setEditing] = useState(false);
   const inputRef: any = useRef();
   const form = useContext(EditableContext);
@@ -67,9 +70,10 @@ export const EditableCell = ({
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save}  className={generateClassName('editable-cell-value-wrap', {
-          'cell-ru': dataIndex === 'ru'
-        })}/>
+        <Input ref={inputRef} onPressEnter={save} onBlur={save}
+               className={generateClassName('editable-cell-value-wrap', {
+                 'cell-ru': dataIndex === 'ru'
+               })}/>
       </Form.Item>
     ) : (
       <div
@@ -79,6 +83,15 @@ export const EditableCell = ({
         onClick={toggleEdit}
       >
         {children}
+        {
+          extra && record.isNeededTranslate && (
+            <Tooltip title="Translate">
+              <Button onClick={() => handleTranslate({...record})} className="btnTranslate" shape="round"
+                      size="small" icon={<ZhihuOutlined/>}>
+              </Button>
+            </Tooltip>
+          )
+        }
       </div>
     );
   }

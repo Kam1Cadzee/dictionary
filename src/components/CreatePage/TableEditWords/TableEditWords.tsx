@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Button, Row, Table} from 'antd';
-import TitleTableWords from './TitleTableWords';
 import {isEmptyObject} from '../../../utils/isEmptyObject';
 import {PartOfSpeech} from '../../../typings/PartOfSpeech';
 import SelectPartOfSpeech from './SelectPartOfSpeech';
@@ -11,6 +10,8 @@ import {MUTATION} from '../../../graphql/mutation';
 import {EditableCell, EditableRow} from '../../common/EditableTableComponent';
 import {DeleteOutlined, RedoOutlined} from '@ant-design/icons';
 import {RedoHistory} from '../../../utils/RedoHistory';
+import BasicTitleTable from '../../common/BasicTItleTable';
+import ContentPopoverWord from './ContentPopoverWord';
 
 const {Column} = Table;
 
@@ -419,7 +420,7 @@ const TableEditWords = (props: ITableEditWordsProps) => {
       size={'small'}
       rowClassName={() => 'editable-row'}
       title={() => (
-        <TitleTableWords
+        <BasicTitleTable
           onAdd={handleAdd}
           onUpdate={handleUpdate}
           loadingUpdate={loadingUpdate}
@@ -431,6 +432,8 @@ const TableEditWords = (props: ITableEditWordsProps) => {
           onNext={history.current.next}
           entity={props.title}
           isCreate={isUpdate}
+          addComponent={ContentPopoverWord}
+          btnTitle="Add word"
         />
       )}
     >

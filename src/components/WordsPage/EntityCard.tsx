@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
 import {Button, Card} from 'antd';
+import {Link} from 'react-router-dom'
 import {IEntity} from '../../typings/IEntity';
 import TranslateContent from './TranslateContent';
 import WordsContent from './WordsContent';
 import PhrasesContent from './PhrasesContent';
+import SentencesContent from './SentencesContent';
+import css from './WordsPage.module.css';
 
 const gridStyle: any = {
-  width: '50%',
-  textAlign: 'center'
+
 };
 
 const tabListNoTitle = [
@@ -29,7 +31,7 @@ const tabListNoTitle = [
   {
     key: 'sentences',
     tab: 'Sentences',
-    component: TranslateContent
+    component: SentencesContent
   },
 ];
 
@@ -48,16 +50,30 @@ const EntityCard = ({entity}:IEntityCardProps) => {
   const words = entity.words.filter(w => w.en !== entity.title);
   const Content = tabListNoTitle.find(t => t.key === key)!.component;
   return (
-    <Card.Grid style={gridStyle}>
+    <Card.Grid className={css.entityCard}  >
       <Card
         tabList={tabListNoTitle}
         activeTabKey={key}
         onTabChange={onTabChange}
-        size={'small'}
+        type={'inner'}
         title={entity.title}
-        extra={<Button>Edit</Button>}
+        extra={<Link to={{
+          pathname: '/main/create/',
+          state: {
+            id: entity.id
+          }
+        }
+        }>Edit</Link>}
       >
-        <Content word={word} disconnectWords={entity.disconnectWords} words={words} phrases={entity.phrases} />
+        <Content
+          word={word}
+          sentences={entity.sentences}
+          disconnectWords={entity.disconnectWords}
+          words={words}
+          phrases={entity.phrases}
+          disconnectSentences={entity.disconnectSentences}
+          disconnectPhrases={entity.disconnectPhrases}
+        />
       </Card>
     </Card.Grid>
   )

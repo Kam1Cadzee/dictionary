@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IEntity } from '../../typings/IEntity';
-import {Col, Collapse, Row} from 'antd';
+import {Collapse} from 'antd';
 import TableEditWords from './TableEditWords/TableEditWords';
 import TableEditPhrase from './TableEditPhrase/TableEditPhrase';
 import { CaretRightOutlined } from '@ant-design/icons';
+import TableEditSentence from './TableEditSentence/TableEditSentence';
 
 const {Panel} = Collapse;
 
@@ -33,6 +34,15 @@ const EntityEditCard = ({ entity }: IEntityEditCardProps) => {
         <TableEditPhrase
           phrases={entity.phrases}
           disconnectPhrases={entity.disconnectPhrases}
+          entityId={entity.id}
+          title={entity.title}
+          isCreate={entity.isCreate}
+        />
+      </Panel>
+      <Panel header="Sentences" key="3" className="site-collapse-custom-panel">
+        <TableEditSentence
+          sentences={entity.sentences}
+          disconnectSentences={entity.disconnectSentences}
           entityId={entity.id}
           title={entity.title}
           isCreate={entity.isCreate}

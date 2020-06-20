@@ -22,7 +22,7 @@ const WordsPage = () => {
   return (
     <Row>
       <Col span={24}>
-        <Card title="Vocabulary" size={'small'}>
+        <Card title="Vocabulary" size={'small'} >
           {
             entities.map(e => {
               return (

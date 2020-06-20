@@ -1,5 +1,5 @@
 import React from 'react';
-import {IPhrase} from '../../typings/IEntity';
+import {IDeleteSmth, IPhrase} from '../../typings/IEntity';
 import {Card, Col, Row} from 'antd';
 import { Typography } from 'antd';
 
@@ -11,13 +11,16 @@ const gridStyle: any = {
 
 interface IPhrasesContentProps {
   phrases: IPhrase[]
+  disconnectPhrases: IDeleteSmth[];
 }
-const PhrasesContent = ({phrases}: IPhrasesContentProps) => {
+const PhrasesContent = ({phrases, disconnectPhrases}: IPhrasesContentProps) => {
+  const data = phrases
+    .filter((p) => !disconnectPhrases.some((d) => d.id === p.id!));
 
   return (
     <Row>
       {
-        phrases.map(p => {
+        data.map(p => {
           return (
             <>
               <Col span={12}>

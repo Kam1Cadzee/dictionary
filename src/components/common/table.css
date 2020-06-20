@@ -34,3 +34,13 @@
     border: 0px;
     overflow: hidden;
 }
+
+.btnTranslate {
+    position: absolute !important;
+    left: 100%;
+    z-index: 11;
+}
+.read-ru {
+    position: relative;
+    transform: translateX(-80%);
+}

@@ -10,11 +10,12 @@ interface ITranslateContentProps {
 }
 
 const TranslateContent = ({word}: ITranslateContentProps) => {
+  word.translate = word.translate.filter(t => !word.disconnectTranslate.some(d => d.id === t.id));
   return (
     <Table dataSource={word.translate} pagination={false} size={'small'} showHeader={false}>
-      <Column title="RU" dataIndex="ru" key="ru" width="65%" />
+      <Column title="RU" dataIndex="ru" key="ru" width="50%" />
       <Column
-        width="35%"
+        width="50%"
         title="Part of speech"
         dataIndex="type"
         key="type"

@@ -6,14 +6,13 @@ import LayoutPage from './pages/LayoutPage';
 import {ApolloProvider, useMutation, useQuery,} from '@apollo/react-hooks';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import QUERIES from './graphql/queries';
-import 'antd/dist/antd.css';
-import './App.css';
 import { ApolloLink, from } from '@apollo/client';
 import { HttpLink } from 'apollo-link-http';
 import { onError } from "@apollo/link-error";
 import {IErrorDev, IErrorProd} from './typings/IError';
-import { ApolloClient } from 'apollo-boost';
+import {ApolloClient, gql} from 'apollo-boost';
 import {isDevelopment} from './utils/env';
+import FRAGMENTS from './graphql/fragments';
 
 console.log(process.env)
 const linkError = onError(({ graphQLErrors = [], networkError, operation, forward, response }) => {
@@ -47,7 +46,6 @@ const link = new HttpLink({
 });
 
 const cache: any = new InMemoryCache();
-
 const client = new ApolloClient({
   cache: cache,
   link: from([
@@ -63,7 +61,22 @@ const client = new ApolloClient({
     query: {
       errorPolicy: 'ignore'
     }
-  }
+  },
+  resolvers: {
+    Query: {
+      getEntity: (_, {id}, {cache, getCacheKey}) => {
+        const res = cache.readFragment({
+          id: getCacheKey({__typename: "Entity", id}),
+          fragment: gql`
+              fragment entity on Entity {
+                  ${FRAGMENTS.entity}
+              }
+          `
+        });
+        return res;
+      },
+    }
+  },
 });
 
 cache.writeData({

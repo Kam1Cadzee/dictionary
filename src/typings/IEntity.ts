@@ -4,6 +4,7 @@ export interface IPhrase {
   id: number;
   phrase: string;
   ru: string;
+  isNeededTranslate?: boolean;
 }
 export interface ITranslate {
   id: number;
@@ -28,6 +29,7 @@ export interface ISentence {
   id: number;
   sentence: string;
   ru: string;
+  isNeededTranslate?: boolean;
 }
 export interface IEntity {
   id: number;
