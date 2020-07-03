@@ -50,11 +50,12 @@ const EntityCard = ({entity}:IEntityCardProps) => {
   const words = entity.words.filter(w => w.en !== entity.title);
   const Content = tabListNoTitle.find(t => t.key === key)!.component;
   return (
-    <Card.Grid className={css.entityCard}  >
+    <Card.Grid className={css.entityCard}>
       <Card
         tabList={tabListNoTitle}
         activeTabKey={key}
         onTabChange={onTabChange}
+        className={'cart-without-padding'}
         type={'inner'}
         title={entity.title}
         extra={<Link to={{

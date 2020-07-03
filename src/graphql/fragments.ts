@@ -50,7 +50,9 @@ const FRAGMENTS = {
     },
     disconnectSentences {
       id
-    }
+    },
+    createdAt,
+    updatedAt,
   `,
 };
 

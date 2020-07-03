@@ -43,6 +43,8 @@ export interface IEntity {
   disconnectWords: IDeleteSmth[];
   disconnectSentences: IDeleteSmth[];
   disconnectPhrases: IDeleteSmth[];
+  createdAt: string;
+  updatedAt: string;
 }
 export interface IDeleteSmth {
   id: number;

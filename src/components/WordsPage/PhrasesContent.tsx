@@ -18,12 +18,12 @@ const PhrasesContent = ({phrases, disconnectPhrases}: IPhrasesContentProps) => {
     .filter((p) => !disconnectPhrases.some((d) => d.id === p.id!));
 
   return (
-    <Row>
+    <Row justify="center">
       {
         data.map(p => {
           return (
             <>
-              <Col span={12}>
+              <Col span={11}>
                 <Text strong>{p.phrase}</Text>
                   <br/>
                 <Text type="secondary">{p.ru}</Text>

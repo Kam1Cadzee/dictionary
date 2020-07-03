@@ -20,6 +20,7 @@ const AuthPage = () => {
           </TabPane>
         </Tabs>
       </Col>
+      <p className={css.version}>v.0.0.2</p>
     </Row>
   )
 };

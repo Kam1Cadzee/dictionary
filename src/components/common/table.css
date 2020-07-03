@@ -44,3 +44,6 @@
     position: relative;
     transform: translateX(-80%);
 }
+.cart-without-padding .ant-card-body{
+    padding: 0 !important;
+}
